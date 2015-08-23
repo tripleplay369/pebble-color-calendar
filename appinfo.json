@@ -1,0 +1,22 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "green.kelby@gmail.com",
+    "longName": "Color Calendar",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "Color Calendar",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "4c6e6f93-b7d2-4861-87e1-4e7b21fa0706",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
