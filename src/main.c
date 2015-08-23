@@ -24,6 +24,7 @@ static struct tm current_time;
 static struct tm current_begin_month;
 static struct tm next_begin_month;
 static int next_direction = 0;
+static int current_offset = 0;
 static struct tm day_to_draw;
 
 static const int HEADER_HEIGHT = 45;
@@ -62,6 +63,7 @@ static void start_drawing_month(struct tm * begin_month){
 }
 
 static void set_next_month(int direction){
+  current_offset += direction;
   next_direction = direction;
   memcpy(&next_begin_month, &current_begin_month, sizeof(struct tm));
   next_begin_month.tm_mon += direction;
@@ -133,11 +135,11 @@ static void update_proc(Layer * layer, GContext * ctx){
   if(next_direction == 0){
     draw_month(layer, ctx, 0, current_begin_month);
   }
-  else if(next_direction == 1){
+  else if(next_direction > 0){
     draw_month(layer, ctx, 0, current_begin_month);
     draw_month(layer, ctx, bounds.size.h, next_begin_month);
   }
-  else if(next_direction == -1){
+  else if(next_direction < 0){
     draw_month(layer, ctx, 0, next_begin_month);
     draw_month(layer, ctx, bounds.size.h, current_begin_month);
   }
@@ -214,9 +216,30 @@ void up_single_click_handler(ClickRecognizerRef recognizer, void * context){
   animate(start_frame, end_frame);
 }
 
+void select_single_click_handler(ClickRecognizerRef recognizer, void * context){
+  if(current_offset == 0) return;
+  
+  Layer * window_layer = window_get_root_layer(main_window);
+  GRect bounds = layer_get_bounds(window_layer);
+  
+  GRect start_frame, end_frame;
+  if(current_offset > 0){
+    start_frame = GRect(0, -1 * bounds.size.h, bounds.size.w, bounds.size.h * 2);
+    end_frame = GRect(0, 0, bounds.size.w, bounds.size.h * 2);
+  }
+  else{
+    start_frame = GRect(0, 0, bounds.size.w, bounds.size.h * 2);
+    end_frame = GRect(0, -1 * bounds.size.h, bounds.size.w, bounds.size.h * 2);
+  }
+  
+  set_next_month(-1 * current_offset);
+  animate(start_frame, end_frame);
+}
+
 void config_provider(Window * window){
   window_single_click_subscribe(BUTTON_ID_DOWN, down_single_click_handler);
   window_single_click_subscribe(BUTTON_ID_UP, up_single_click_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_single_click_handler);
 }
 
 static void init(){
