@@ -10,7 +10,7 @@
         "media": []
     },
     "sdkVersion": "3",
-    "shortName": "Color Calendar",
+    "shortName": "Calendar",
     "targetPlatforms": [
         "basalt"
     ],

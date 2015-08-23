@@ -28,19 +28,20 @@ static int current_offset = 0;
 static struct tm day_to_draw;
 
 static const int HEADER_HEIGHT = 45;
-static const int TITLE_OFFSET = 0;
+static const int TITLE_OFFSET = -2;
 static const int TITLE_HEIGHT = 30;
-static const int WEEK_LABELS_OFFSET_Y = 30;
+static const int WEEK_LABELS_OFFSET_Y = 26;
 static const int WEEK_LABELS_HEGHT = 10;
 static const int DAY_WIDTH = 20;
 static const int DAY_OFFSET_X = 3;
-static const int DAY_OFFSET_Y = 45;
+static const int DAY_OFFSET_Y = 43;
 static const int DAY_HEIGHT = 20;
 static const int CURRENT_DAY_RADIUS = 10;
+static const int DAY_CIRCLE_OFFSET = 2;
 
-static const char * TITLE_FONT_KEY = FONT_KEY_GOTHIC_24;
-static const char * WEEK_LABEL_FONT_KEY = FONT_KEY_GOTHIC_09;
-static const char * DAY_FONT_KEY = FONT_KEY_GOTHIC_14;
+static const char * TITLE_FONT_KEY = FONT_KEY_GOTHIC_24_BOLD;
+static const char * WEEK_LABEL_FONT_KEY = FONT_KEY_GOTHIC_14;
+static const char * DAY_FONT_KEY = FONT_KEY_GOTHIC_18;
 static uint8_t header_color = GColorLightGrayARGB8;
 static uint8_t title_color = GColorRedARGB8;
 static uint8_t sat_sun_color = GColorDarkGrayARGB8;
@@ -48,7 +49,7 @@ static uint8_t week_day_color = GColorBlackARGB8;
 static uint8_t day_color = GColorBlackARGB8;
 static uint8_t current_day_color = GColorVeryLightBlueARGB8;
 static uint8_t current_day_text_color = GColorWhiteARGB8;
-static uint8_t other_month_day_color = GColorDarkGrayARGB8;
+static uint8_t other_month_day_color = GColorLightGrayARGB8;
 
 static void start_drawing_month(struct tm * begin_month){
   memcpy(&day_to_draw, begin_month, sizeof(struct tm));
@@ -97,7 +98,7 @@ static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm cu
     // draw current day circle
     if(day_to_draw.tm_mon == current_time.tm_mon && day_to_draw.tm_mday == current_time.tm_mday && day_to_draw.tm_year == current_time.tm_year){
       graphics_context_set_fill_color(ctx, (GColor)current_day_color);
-      GPoint location = GPoint(DAY_OFFSET_X + current_time.tm_wday * DAY_WIDTH + DAY_WIDTH / 2, offset_y + DAY_OFFSET_Y + current_row * DAY_HEIGHT + DAY_HEIGHT / 2);
+      GPoint location = GPoint(DAY_OFFSET_X + current_time.tm_wday * DAY_WIDTH + DAY_WIDTH / 2, offset_y + DAY_OFFSET_Y + current_row * DAY_HEIGHT + DAY_HEIGHT / 2 + DAY_CIRCLE_OFFSET);
       graphics_fill_circle(ctx, location, CURRENT_DAY_RADIUS);
       graphics_context_set_text_color(ctx, (GColor)current_day_text_color);
     }
@@ -165,6 +166,7 @@ static void init_time(){
 
 void anim_stopped_handler(Animation *animation, bool finished, void *context){
   property_animation_destroy(property_animation);
+  property_animation = NULL;
   
   next_direction = 0;
   memcpy(&current_begin_month, &next_begin_month, sizeof(struct tm));
@@ -183,6 +185,8 @@ void animate(GRect start_frame, GRect end_frame){
 }
 
 void down_single_click_handler(ClickRecognizerRef recognizer, void * context){
+  if(animation_is_scheduled((Animation *)property_animation)) return;
+  
   Layer * window_layer = window_get_root_layer(main_window);
   GRect bounds = layer_get_bounds(window_layer);
   
@@ -194,6 +198,8 @@ void down_single_click_handler(ClickRecognizerRef recognizer, void * context){
 }
 
 void up_single_click_handler(ClickRecognizerRef recognizer, void * context){
+  if(animation_is_scheduled((Animation *)property_animation)) return;
+  
   Layer * window_layer = window_get_root_layer(main_window);
   GRect bounds = layer_get_bounds(window_layer);
   
@@ -205,6 +211,7 @@ void up_single_click_handler(ClickRecognizerRef recognizer, void * context){
 }
 
 void select_single_click_handler(ClickRecognizerRef recognizer, void * context){
+  if(animation_is_scheduled((Animation *)property_animation)) return;
   if(current_offset == 0) return;
   
   Layer * window_layer = window_get_root_layer(main_window);
