@@ -6,6 +6,7 @@
 #define SUNDAY_INDEX 0
 #define SATUTDAY_INDEX 6
 #define MAX_DAY_LEN 3
+#define MAX_ROW_INDEX 5
   
 static const char * MONTH_NAMES[] = {
   "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
@@ -43,23 +44,28 @@ static uint8_t week_day_color = GColorBlackARGB8;
 static uint8_t day_color = GColorDarkGrayARGB8;
 static uint8_t current_day_color = GColorVeryLightBlueARGB8;
 static uint8_t current_day_text_color = GColorWhiteARGB8;
+static uint8_t other_month_day_color = GColorLightGrayARGB8;
 
 static void start_drawing_month(struct tm * begin_month) {
   memcpy(&day_to_draw, begin_month, sizeof(struct tm));
+  
+  struct tm * tmp_time;
+  while(day_to_draw.tm_wday != 0){
+    day_to_draw.tm_mday--;
+    time_t tmp_day = mktime(&day_to_draw);
+    tmp_time = localtime(&tmp_day);
+    memcpy(&day_to_draw, tmp_time, sizeof(struct tm));
+  }
 }
 
-static int next_day_of_month() {
-  int current_month = day_to_draw.tm_mon;
+static void next_day_of_month() {
   day_to_draw.tm_mday++;
   
   struct tm * tmp_time;
   time_t tmp_day = mktime(&day_to_draw);
   tmp_time = localtime(&tmp_day);
-  
-  if(tmp_time->tm_mon != current_month) return 0;
-  
+    
   memcpy(&day_to_draw, tmp_time, sizeof(struct tm));
-  return 1;
 }
 
 static void update_proc(Layer * layer, GContext * ctx) {
@@ -91,6 +97,9 @@ static void update_proc(Layer * layer, GContext * ctx) {
       graphics_fill_circle(ctx, location, CURRENT_DAY_RADIUS);
       graphics_context_set_text_color(ctx, (GColor)current_day_text_color);
     }
+    else if(day_to_draw.tm_mon != current_begin_month.tm_mon){
+      graphics_context_set_text_color(ctx, (GColor)other_month_day_color);
+    }
     else{
       graphics_context_set_text_color(ctx, (GColor)day_color);
     }
@@ -101,7 +110,8 @@ static void update_proc(Layer * layer, GContext * ctx) {
     graphics_draw_text(ctx, day, fonts_get_system_font(DAY_FONT_KEY), location, GTextOverflowModeFill, GTextAlignmentCenter, NULL);
     
     if(day_to_draw.tm_wday == SATUTDAY_INDEX) ++current_row;
-  }while(next_day_of_month());
+    next_day_of_month();
+  }while(current_row <= MAX_ROW_INDEX);
 }
   
 static void main_window_load(Window * window) {
