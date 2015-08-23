@@ -82,7 +82,7 @@ static void next_day_of_month(){
 
 static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm current_tm){
   GRect bounds = layer_get_bounds(layer);
-  
+    
   char title[TITLE_MAX_LEN] = {'\0'};
   snprintf(title, TITLE_MAX_LEN, "%s %d", MONTH_NAMES[current_tm.tm_mon], current_tm.tm_year + TM_BEGIN_YEAR);
   
@@ -180,8 +180,8 @@ void anim_stopped_handler(Animation *animation, bool finished, void *context){
   memcpy(&current_begin_month, &next_begin_month, sizeof(struct tm));
   
   Layer * window_layer = window_get_root_layer(main_window);
-  GRect bounds = layer_get_bounds(window_layer);
-  layer_set_bounds(main_layer, bounds);
+  GRect frame = layer_get_frame(window_layer);
+  layer_set_frame(main_layer, frame);
 }
 
 void animate(GRect start_frame, GRect end_frame){
