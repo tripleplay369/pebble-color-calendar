@@ -42,13 +42,13 @@ static const char * TITLE_FONT_KEY = FONT_KEY_GOTHIC_24;
 static const char * WEEK_LABEL_FONT_KEY = FONT_KEY_GOTHIC_09;
 static const char * DAY_FONT_KEY = FONT_KEY_GOTHIC_14;
 static uint8_t header_color = GColorLightGrayARGB8;
-static uint8_t title_color = GColorSunsetOrangeARGB8;
+static uint8_t title_color = GColorRedARGB8;
 static uint8_t sat_sun_color = GColorDarkGrayARGB8;
 static uint8_t week_day_color = GColorBlackARGB8;
-static uint8_t day_color = GColorDarkGrayARGB8;
+static uint8_t day_color = GColorBlackARGB8;
 static uint8_t current_day_color = GColorVeryLightBlueARGB8;
 static uint8_t current_day_text_color = GColorWhiteARGB8;
-static uint8_t other_month_day_color = GColorLightGrayARGB8;
+static uint8_t other_month_day_color = GColorDarkGrayARGB8;
 
 static void start_drawing_month(struct tm * begin_month){
   memcpy(&day_to_draw, begin_month, sizeof(struct tm));
@@ -233,6 +233,7 @@ void select_single_click_handler(ClickRecognizerRef recognizer, void * context){
   }
   
   set_next_month(-1 * current_offset);
+  current_offset = 0;
   animate(start_frame, end_frame);
 }
 
