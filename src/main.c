@@ -53,12 +53,9 @@ static uint8_t other_month_day_color = GColorDarkGrayARGB8;
 static void start_drawing_month(struct tm * begin_month){
   memcpy(&day_to_draw, begin_month, sizeof(struct tm));
   
-  struct tm * tmp_time;
   while(day_to_draw.tm_wday != 0){
     day_to_draw.tm_mday--;
-    time_t tmp_day = mktime(&day_to_draw);
-    tmp_time = localtime(&tmp_day);
-    memcpy(&day_to_draw, tmp_time, sizeof(struct tm));
+    mktime(&day_to_draw);
   }
 }
 
@@ -67,19 +64,12 @@ static void set_next_month(int direction){
   next_direction = direction;
   memcpy(&next_begin_month, &current_begin_month, sizeof(struct tm));
   next_begin_month.tm_mon += direction;
-  time_t tmp_month = mktime(&next_begin_month);
-  struct tm * tmp_time = localtime(&tmp_month);
-  memcpy(&next_begin_month, tmp_time, sizeof(struct tm));
+  mktime(&next_begin_month);
 }
 
 static void next_day_of_month(){
-  day_to_draw.tm_mday++;
-  
-  struct tm * tmp_time;
-  time_t tmp_day = mktime(&day_to_draw);
-  tmp_time = localtime(&tmp_day);
-    
-  memcpy(&day_to_draw, tmp_time, sizeof(struct tm));
+  day_to_draw.tm_mday++;  
+  mktime(&day_to_draw);
 }
 
 static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm current_tm){
@@ -105,7 +95,7 @@ static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm cu
   start_drawing_month(&current_tm);
   do{
     // draw current day circle
-    if(day_to_draw.tm_mon == current_time.tm_mon && day_to_draw.tm_mday == current_time.tm_mday){
+    if(day_to_draw.tm_mon == current_time.tm_mon && day_to_draw.tm_mday == current_time.tm_mday && day_to_draw.tm_year == current_time.tm_year){
       graphics_context_set_fill_color(ctx, (GColor)current_day_color);
       GPoint location = GPoint(DAY_OFFSET_X + current_time.tm_wday * DAY_WIDTH + DAY_WIDTH / 2, offset_y + DAY_OFFSET_Y + current_row * DAY_HEIGHT + DAY_HEIGHT / 2);
       graphics_fill_circle(ctx, location, CURRENT_DAY_RADIUS);
@@ -170,9 +160,7 @@ static void init_time(){
   current_begin_month.tm_hour = 0;
   current_begin_month.tm_mday = 1;
   
-  time_t tmp_begin_month = mktime(&current_begin_month);
-  tmp_time = localtime(&tmp_begin_month);
-  memcpy(&current_begin_month, tmp_time, sizeof(struct tm));
+  mktime(&current_begin_month);
 }
 
 void anim_stopped_handler(Animation *animation, bool finished, void *context){
