@@ -89,7 +89,7 @@ static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm cu
   graphics_draw_text(ctx, title, fonts_get_system_font(TITLE_FONT_KEY), GRect(bounds.origin.x, offset_y + bounds.origin.y + TITLE_OFFSET, bounds.size.w, TITLE_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   
   for(int i = 0; i < DAYS_PER_WEEK; ++i){
-    int ii = (i + is_euro) % 7;
+    int ii = (i + is_euro) % DAYS_PER_WEEK;
     uint8_t color = (ii == SUNDAY_INDEX || ii == SATURDAY_INDEX ? sat_sun_color : week_day_color);
     graphics_context_set_text_color(ctx, (GColor)color);
     graphics_draw_text(ctx, WEEK_LABELS[ii], fonts_get_system_font(WEEK_LABEL_FONT_KEY), GRect(DAY_OFFSET_X + DAY_WIDTH * i, offset_y + WEEK_LABELS_OFFSET_Y, DAY_WIDTH, WEEK_LABELS_HEGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
