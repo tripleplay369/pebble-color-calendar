@@ -12,10 +12,11 @@
     "sdkVersion": "3",
     "shortName": "Calendar",
     "targetPlatforms": [
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "4c6e6f93-b7d2-4861-87e1-4e7b21fa0706",
-    "versionLabel": "1.1",
+    "versionLabel": "1.2",
     "watchapp": {
         "watchface": false
     }

@@ -10,7 +10,7 @@
 #define IS_EURO_KEY 0
   
 static const char * MONTH_NAMES[] = {
-  "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
 static const char * WEEK_LABELS[] = {
@@ -28,17 +28,30 @@ static int next_direction = 0;
 static int current_offset = 0;
 static struct tm day_to_draw;
 
-static const int HEADER_HEIGHT = 45;
-static const int TITLE_OFFSET = -2;
 static const int TITLE_HEIGHT = 30;
-static const int WEEK_LABELS_OFFSET_Y = 26;
 static const int WEEK_LABELS_HEGHT = 10;
 static const int DAY_WIDTH = 20;
 static const int DAY_OFFSET_X = 3;
+static const int CURRENT_DAY_RADIUS = 10;
+static const int HEADER_CORNER_RADIUS = 5;
+
+#if defined(PBL_RECT)
+static const int START_X = 0;
+static const int HEADER_HEIGHT = 45;
+static const int WEEK_LABELS_OFFSET_Y = 26;
+static const int TITLE_OFFSET = -2;
 static const int DAY_OFFSET_Y = 43;
 static const int DAY_HEIGHT = 20;
-static const int CURRENT_DAY_RADIUS = 10;
 static const int DAY_CIRCLE_OFFSET = 2;
+#elif defined(PBL_ROUND)
+static const int START_X = 18;
+static const int HEADER_HEIGHT = 45;
+static const int WEEK_LABELS_OFFSET_Y = 26;
+static const int TITLE_OFFSET = 0;
+static const int DAY_OFFSET_Y = 43;
+static const int DAY_HEIGHT = 18;
+static const int DAY_CIRCLE_OFFSET = 3;
+#endif
 
 static const char * TITLE_FONT_KEY = FONT_KEY_GOTHIC_24_BOLD;
 static const char * WEEK_LABEL_FONT_KEY = FONT_KEY_GOTHIC_14;
@@ -84,7 +97,7 @@ static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm cu
   
   // draw header
   graphics_context_set_fill_color(ctx, (GColor)header_color);
-  graphics_fill_rect(ctx, GRect(bounds.origin.x, offset_y + bounds.origin.y, bounds.size.w, HEADER_HEIGHT), 5, GCornersAll);
+  graphics_fill_rect(ctx, GRect(bounds.origin.x, offset_y + bounds.origin.y, bounds.size.w, HEADER_HEIGHT), HEADER_CORNER_RADIUS, GCornersAll);
   graphics_context_set_text_color(ctx, (GColor)title_color);
   graphics_draw_text(ctx, title, fonts_get_system_font(TITLE_FONT_KEY), GRect(bounds.origin.x, offset_y + bounds.origin.y + TITLE_OFFSET, bounds.size.w, TITLE_HEIGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   
@@ -92,7 +105,7 @@ static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm cu
     int ii = (i + is_euro) % DAYS_PER_WEEK;
     uint8_t color = (ii == SUNDAY_INDEX || ii == SATURDAY_INDEX ? sat_sun_color : week_day_color);
     graphics_context_set_text_color(ctx, (GColor)color);
-    graphics_draw_text(ctx, WEEK_LABELS[ii], fonts_get_system_font(WEEK_LABEL_FONT_KEY), GRect(DAY_OFFSET_X + DAY_WIDTH * i, offset_y + WEEK_LABELS_OFFSET_Y, DAY_WIDTH, WEEK_LABELS_HEGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, WEEK_LABELS[ii], fonts_get_system_font(WEEK_LABEL_FONT_KEY), GRect(START_X + DAY_OFFSET_X + DAY_WIDTH * i, offset_y + WEEK_LABELS_OFFSET_Y, DAY_WIDTH, WEEK_LABELS_HEGHT), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
   
   // draw days
@@ -105,7 +118,7 @@ static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm cu
     // draw current day circle
     if(day_to_draw.tm_mon == current_time.tm_mon && day_to_draw.tm_mday == current_time.tm_mday && day_to_draw.tm_year == current_time.tm_year){
       graphics_context_set_fill_color(ctx, (GColor)current_day_color);
-      GPoint location = GPoint(DAY_OFFSET_X + wday_index * DAY_WIDTH + DAY_WIDTH / 2, offset_y + DAY_OFFSET_Y + current_row * DAY_HEIGHT + DAY_HEIGHT / 2 + DAY_CIRCLE_OFFSET);
+      GPoint location = GPoint(START_X + DAY_OFFSET_X + wday_index * DAY_WIDTH + DAY_WIDTH / 2, offset_y + DAY_OFFSET_Y + current_row * DAY_HEIGHT + DAY_HEIGHT / 2 + DAY_CIRCLE_OFFSET);
       graphics_fill_circle(ctx, location, CURRENT_DAY_RADIUS);
       graphics_context_set_text_color(ctx, (GColor)current_day_text_color);
     }
@@ -118,7 +131,7 @@ static void draw_month(Layer * layer, GContext * ctx, int offset_y, struct tm cu
     
     char day[MAX_DAY_LEN] = {'\0'};
     snprintf(day, MAX_DAY_LEN, "%d", day_to_draw.tm_mday);
-    GRect location = GRect(DAY_OFFSET_X + wday_index * DAY_WIDTH, offset_y + DAY_OFFSET_Y + current_row * DAY_HEIGHT, DAY_WIDTH, DAY_HEIGHT);
+    GRect location = GRect(START_X + DAY_OFFSET_X + wday_index * DAY_WIDTH, offset_y + DAY_OFFSET_Y + current_row * DAY_HEIGHT, DAY_WIDTH, DAY_HEIGHT);
     graphics_draw_text(ctx, day, fonts_get_system_font(DAY_FONT_KEY), location, GTextOverflowModeFill, GTextAlignmentCenter, NULL);
     
     if(wday_index == SATURDAY_INDEX) ++current_row;
