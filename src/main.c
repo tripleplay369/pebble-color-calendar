@@ -182,10 +182,7 @@ static void init_time(){
   tmp_time = localtime(&now);
   memcpy(&current_time, tmp_time, sizeof(struct tm));
   memcpy(&current_begin_month, &current_time, sizeof(struct tm));
-  
-  current_begin_month.tm_sec = 0;
-  current_begin_month.tm_min = 0;
-  current_begin_month.tm_hour = 0;
+
   current_begin_month.tm_mday = 1;
   
   mktime(&current_begin_month);
